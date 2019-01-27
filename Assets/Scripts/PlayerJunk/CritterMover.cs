@@ -151,6 +151,8 @@ public class CritterMover : ICritterMover
 
         launcher.Update(packet.shoot, critter.transform.position, packet.headOrientation * Vector3.forward);
 
+        Debug.LogError("ToServer: " + newPosition.ToString("F4"));
+
         return new CritterStatePacket {
             position = newPosition,
             velocity = rb.velocity,
@@ -158,9 +160,22 @@ public class CritterMover : ICritterMover
         };
     }
 
+    float lastTime;
+    int frameCnt = 0;
     public void TakeStateFromServer(CritterStatePacket state, bool setHeadOrientation = true)
     {
-        rb.MovePosition(state.position);
+        if(Time.time > lastTime + 1f)
+        {
+            frameCnt = 0;
+            lastTime = Time.time;
+        }
+        else
+        {
+            frameCnt++;
+        }
+        Debug.LogError("FromServer: " + state.position.ToString("F4") + " FC: " + frameCnt);
+        rb.position = state.position;
+        //rb.MovePosition(state.position);
         rb.velocity = state.velocity;
 
         if (setHeadOrientation)

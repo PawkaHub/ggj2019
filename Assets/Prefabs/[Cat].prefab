@@ -6547,7 +6547,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   critterConfig:
-    extraHeight: 0.21
+    extraHeight: 0.3
     suspensionRadiusRatio: 0.9
     maxSpeed: 2
     accelLag: 10

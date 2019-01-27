@@ -6,6 +6,7 @@ namespace Networking
     public class CritterInputPacketMessage : MessageBase
     {
         public CritterInputPacket critterInputPacket;
+        public float time;
     }
 
 }

@@ -7,6 +7,7 @@ namespace Networking
     {
         public CritterStatePacket critterStatePacket;
         internal int ID;
+        public float Time;
     }
 
 }

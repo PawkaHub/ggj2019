@@ -87,7 +87,8 @@ namespace Networking
 
             Connection.SendUnreliable(GameMsgType.UpdateCritterInput, new CritterInputPacketMessage()
             {
-                critterInputPacket = obj
+                critterInputPacket = obj,
+                time = Time.time
             });
         }
     }

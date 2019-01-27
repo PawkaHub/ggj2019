@@ -86,7 +86,8 @@ namespace Networking
                 player.Connection.SendUnreliable(GameMsgType.UpdateCritterState, new CritterStatePacketMessage()
                 {
                     ID = currentPlayer.ID,
-                    critterStatePacket = p
+                    critterStatePacket = p,
+                    Time = Time.time
                 });
             }
         }
