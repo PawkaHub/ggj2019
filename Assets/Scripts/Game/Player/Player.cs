@@ -36,9 +36,19 @@ namespace Game
             CritterController.OnCritterStatePacket += netPlayer.ForwardCritterStatePacket;
             CritterController.localInputGrabber = (netPlayer.IsSelf) ? localInputGrabber : null;
 
-            if (!isServer && netPlayer.IsSelf)
+            if (netPlayer.IsSelf)
             {
-                CritterController.OnCritterInputPacket += NetworkPlayer.PostCritterInputPacket;
+                if (isServer)
+                {
+                    CritterController.OnCritterInputPacket += (p) =>
+                    {
+                        netPlayer.ServerConnection.SendUpdateCritterInput(netPlayer, p);
+                    };
+                }
+                else
+                {
+                    CritterController.OnCritterInputPacket += NetworkPlayer.PostCritterInputPacket;
+                }
             }
         }
 
