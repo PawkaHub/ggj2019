@@ -23,6 +23,7 @@ public interface ICritterMover
     void TakeStateFromServer(CritterStatePacket state, bool setRotation = true);
     CritterStatePacket UpdateTick(CritterInputPacket packet);
     GameObject GetHead();
+    bool Collided { get; set; }
 }
 
 public class CritterMover : ICritterMover
@@ -41,6 +42,8 @@ public class CritterMover : ICritterMover
 
     int grounded;
     float cameraBobT;
+
+    public bool Collided { get; set; }
 
     public GameObject GetHead()
     {
@@ -65,6 +68,8 @@ public class CritterMover : ICritterMover
         return null;
     }
 
+    IPlayerAudioManager audioManager;
+
     public CritterMover(GameObject critter, CritterMoverConfig config, IPlayerAudioManager audioManager)
     {
         this.critter = critter;
@@ -77,6 +82,7 @@ public class CritterMover : ICritterMover
         childCamera = critter.GetComponentInChildren<Camera>().gameObject;
         cameraBobT = 0;
         suspensionRadius = config.suspensionRadiusRatio * radius;
+        this.audioManager = audioManager;
         launcher = AttackLauncherFactory.Create(config.attackKind, audioManager, critter.GetComponentInParent<Player>());
     }
 
@@ -132,6 +138,7 @@ public class CritterMover : ICritterMover
         if (packet.jump && grounded > 0) {
             grounded = 0;
             rb.velocity = rb.velocity.WithY(config.jumpVelY);
+            audioManager.PlayJumpSound();
         }
 
         var newPosition = rb.position + rb.velocity * Time.fixedDeltaTime;

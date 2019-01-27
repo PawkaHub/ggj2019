@@ -40,10 +40,13 @@ public class FlyingCritterMover : ICritterMover
     float _rollDegrees;
     bool hasHadAnyInput;
 
+    IPlayerAudioManager audioManager;
+
     public FlyingCritterMover(GameObject critter, FlyingCritterMoverConfig config, IPlayerAudioManager audioManager)
     {
         this.critter = critter;
         this.config = config;
+        this.audioManager = audioManager;
 
         hasHadAnyInput = false;
         currentState = STATE.FLYING;
@@ -111,13 +114,24 @@ public class FlyingCritterMover : ICritterMover
         {
             float flapForce = Mathf.Cos(Time.time * config.FlapFrequency) * config.FlapPower;
             flapForce = Mathf.Abs(flapForce);
-            var flapThrustToLiftRatio = packet.forward ? config.FlapThrustToLiftRatioPressingW : config.FlapThrustToLiftRatioPressingNotPressingW;
+            var flapThrustToLiftRatio = config.FlapThrustToLiftRatioPressingNotPressingW;
+            if (currentState == STATE.FLYING)
+            {
+                flapThrustToLiftRatio = packet.forward ? config.FlapThrustToLiftRatioPressingW : config.FlapThrustToLiftRatioPressingNotPressingW;
+            }
+            else
+            {
+                audioManager.PlayJumpSound();
+            }
             rb.AddForce(critter.transform.forward * flapForce * flapThrustToLiftRatio);
             rb.AddForce(critter.transform.up * flapForce * (1 - flapThrustToLiftRatio));
         }
 
         var dragVector = rb.velocity * -drag;
-        rb.AddForce(dragVector);
+        if (Vector3.Magnitude(dragVector) < Mathf.Infinity)
+        {
+            rb.AddForce(dragVector);
+        }
 
         float lift = (Mathf.Pow(locForwardVel, 2) * config.LiftMagic * signedAngleOfAttack) / 2;
         var liftVector = critter.transform.up * lift;
@@ -131,14 +145,14 @@ public class FlyingCritterMover : ICritterMover
         // janky, no science glide bs
         var fallVelocity = rb.velocity.y;
         var glideRatio = lift / drag;
-        if (fallVelocity < 0 && glideRatio < 0)
+        if (!Collided && fallVelocity < 0 && glideRatio < 0)
         {
             var forwardGlide = fallVelocity * glideRatio * config.GlideMagic;
             rb.AddForce(critter.transform.forward * forwardGlide, ForceMode.VelocityChange);
         }
     }
 
-    void UpdateState() // todo this is buggy and sets to standing when close by not touching
+    public void UpdateState() // todo this is buggy and sets to standing when close by not touching
     {
         RaycastHit hit;
         Ray downRay = new Ray(critter.transform.position, -Vector3.up);
@@ -149,6 +163,8 @@ public class FlyingCritterMover : ICritterMover
     enum STATE { FLYING, STANDING }
 
     STATE currentState { get; set; }
+
+    public bool Collided { get; set; }
 
     Rigidbody rb;
 
@@ -169,4 +185,5 @@ public class FlyingCritterMover : ICritterMover
 
         return Quaternion.Euler(_pitchDegrees, _yawDegress, _rollDegrees);
     }
+
 }
