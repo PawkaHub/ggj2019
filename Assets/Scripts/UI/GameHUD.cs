@@ -1,4 +1,5 @@
 ﻿using Game;
+using System;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
@@ -28,17 +29,25 @@ namespace UI
         public void Start()
         {
             gameManager = FindObjectOfType<GameManager>();
+            FindObjectOfType<GameOutcomeManager>().OnGameEnded += OnGameOver;
 
-            var color = Fader.color;
-            color.a = 0;
-            Fader.color = color;
-            color = TitleFader.color;
-            color.a = 0;
-            TitleFader.color = color;
+            SetFaderAlpha(0);
             HealthText.enabled = false;
             HealthBar.gameObject.SetActive(false);
             KillsText.enabled = false;
             DeathsText.enabled = false;
+        }
+
+        private void OnGameOver(object sender, GameOutcomeEventArgs e)
+        {
+            if (e.Outcome.Winner.NetworkPlayer.IsSelf)
+            {
+                StartCoroutine(FadeInThenOut("YOU'RE THE BEST PET", 0.1f, 0.001f));
+            }
+            else
+            {
+                StartCoroutine(FadeInThenOut("YOU LOST. BUT WE STILL LOVE YOU", 0.1f, 0.001f));
+            }
         }
 
         public void Update()
@@ -51,11 +60,11 @@ namespace UI
                     var health = player.Health;
                     var score = player.Score;
 
-                    HealthText.text = string.Format("Health {0}/{1}", health.Current, health.Default);
+                    HealthText.text = string.Format("Health   {0}  /  {1}", health.Current, health.Default);
                     HealthBar.value = health.Current / health.Default;
 
-                    KillsText.text = string.Format("Kills: {0}", score.Kills);
-                    DeathsText.text = string.Format("Deaths: {0}", score.Deaths);
+                    KillsText.text = string.Format("Kills  :    {0}", score.Kills);
+                    DeathsText.text = string.Format("Deaths  :    {0}", score.Deaths);
 
                     if (!hasPlayer)
                     {
