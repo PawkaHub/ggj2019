@@ -19,6 +19,8 @@ static public class AttackLauncherFactory
     {
         switch (kind) 
         {
+            case AttackKind.BirdPoop:
+                return new BirdProjectileLauncher(playerAudioManager);
             case AttackKind.CatProjectile:
             default:
                 return new CatProjectileLauncher(playerAudioManager, player);
@@ -50,6 +52,34 @@ public class CatProjectileLauncher : IAttackLauncher
             var pukeObj = Object.Instantiate(CatProjectPrefab, position, Quaternion.identity);
             pukeObj.GetComponent<CatProjectileController>().Init(direction);
             pukeObj.GetComponent<BaseDamageApplier>().Creator = Player;
+            AudioManager.PlayProjectileAudio();
+            buttonDown = true;
+        }
+
+        if (!attackButtonPressed)
+            buttonDown = false;
+    }
+}
+
+public class BirdProjectileLauncher : IAttackLauncher
+{
+    bool buttonDown = false;
+    IPlayerAudioManager AudioManager;
+    GameObject CatProjectPrefab;
+    CatProjectileController CatProjectileController;
+
+    public BirdProjectileLauncher(IPlayerAudioManager playerAudioManager)
+    {
+        AudioManager = playerAudioManager;
+        CatProjectPrefab = Resources.Load<GameObject>("Prefabs/BirdProjectile");
+    }
+
+    public void Update(bool attackButtonPressed, Vector3 position, Vector3 direction)
+    {
+        if (attackButtonPressed && !buttonDown)
+        {
+            var pukeObj = Object.Instantiate(CatProjectPrefab, position, Quaternion.identity);
+            pukeObj.GetComponent<CatProjectileController>().Init(direction);
             AudioManager.PlayProjectileAudio();
             buttonDown = true;
         }

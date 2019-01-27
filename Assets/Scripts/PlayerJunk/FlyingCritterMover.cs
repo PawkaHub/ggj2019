@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Game;
 using UnityEngine;
 
 [Serializable]
@@ -32,11 +33,11 @@ public class FlyingCritterMover : ICritterMover
 {
     readonly GameObject critter;
     readonly FlyingCritterMoverConfig config;
+    readonly IAttackLauncher launcher;
 
     float _yawDegress;
     float _pitchDegrees;
     float _rollDegrees;
-    float timeOfLastBowelMovement = 0f;
 
     public FlyingCritterMover(GameObject critter, FlyingCritterMoverConfig config, IPlayerAudioManager audioManager)
     {
@@ -48,6 +49,7 @@ public class FlyingCritterMover : ICritterMover
         rb = critter.GetComponent<Rigidbody>();
         rb.useGravity = false;
         rb.mass = config.Mass;
+        launcher = AttackLauncherFactory.Create(config.attackKind, audioManager, critter.GetComponentInParent<Player>());
     }
 
     public GameObject GetHead()
@@ -70,6 +72,7 @@ public class FlyingCritterMover : ICritterMover
     {
         UpdateState();
         DoMove(packet);
+        TryPoop(packet);
 
         return new CritterStatePacket
         {
@@ -77,6 +80,11 @@ public class FlyingCritterMover : ICritterMover
             velocity = rb.velocity,
             headOrientation = critter.transform.rotation // TODO prob dont need this
         };
+    }
+
+    void TryPoop(CritterInputPacket packet)
+    {
+        launcher.Update(packet.shoot, critter.transform.position, -critter.transform.up);
     }
 
     void DoMove(CritterInputPacket packet)
@@ -117,16 +125,6 @@ public class FlyingCritterMover : ICritterMover
         {
             var forwardGlide = fallVelocity * glideRatio * config.GlideMagic;
             rb.AddForce(critter.transform.forward * forwardGlide, ForceMode.VelocityChange);
-        }
-
-        bool readyForBM = Time.time - timeOfLastBowelMovement > config.ShitsPerMinute / 60;
-        if (packet.shoot && readyForBM)
-        {
-            timeOfLastBowelMovement = Time.time;
-            var shit = GameObject.Instantiate(Resources.Load("Prefabs/BirdShit") as GameObject);
-            shit.transform.position = critter.transform.position;
-            shit.transform.localScale = critter.transform.localScale * config.SizeOfShitRelativeToBird;
-            var birdShit = shit.GetComponent<BirdShit>();
         }
     }
 
