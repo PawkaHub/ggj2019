@@ -123,6 +123,32 @@ namespace Networking
             }
         }
 
+        public void SendUpdatedScores()
+        {
+            foreach (var activePlayer in activePlayers)
+            {
+                var score = activePlayer.Player.Score;
+                var message = new CritterScoreMessage()
+                {
+                    ID = activePlayer.ID,
+                    DeathCount = score.Deaths,
+                    KillCount = score.Kills,
+                    DamageTaken = score.DamageTaken,
+                    DamageDealt = score.DamageDealt,
+                };
+
+                foreach (var targetPlayer in activePlayers)
+                {
+                    if (targetPlayer.isServer)
+                    {
+                        continue;
+                    }
+
+                    targetPlayer.Connection.SendUnreliable(GameMsgType.UpdateCritterScores, message);
+                }
+            }
+        }
+
         private void OnClientDisconnected(NetworkConnection obj)
         {
             Debug.Log("Server OnClientDisconnected" + obj.address + "connectionID " + obj.connectionId);
@@ -180,6 +206,7 @@ namespace Networking
             {
                 PostCritterStatePacket(p, player);
             };
+            player.ServerConnection = this;
 
             activePlayers.Add(player);
 

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using Game;
 using UnityEngine;
 
 public enum AttackKind
@@ -15,13 +15,13 @@ public interface IAttackLauncher
 
 static public class AttackLauncherFactory
 {
-    static public IAttackLauncher Create(AttackKind kind, IPlayerAudioManager playerAudioManager)
+    static public IAttackLauncher Create(AttackKind kind, IPlayerAudioManager playerAudioManager, Player player)
     {
         switch (kind) 
         {
             case AttackKind.CatProjectile:
             default:
-                return new CatProjectileLauncher(playerAudioManager);
+                return new CatProjectileLauncher(playerAudioManager, player);
         }
 
         return null;
@@ -34,9 +34,11 @@ public class CatProjectileLauncher : IAttackLauncher
     IPlayerAudioManager AudioManager;
     GameObject CatProjectPrefab;
     CatProjectileController CatProjectileController;
+    Player Player;
 
-    public CatProjectileLauncher(IPlayerAudioManager playerAudioManager)
+    public CatProjectileLauncher(IPlayerAudioManager playerAudioManager, Player player)
     {
+        Player = player;
         AudioManager = playerAudioManager;
         CatProjectPrefab = Resources.Load<GameObject>("Prefabs/CatProjectile");
     }
@@ -47,6 +49,7 @@ public class CatProjectileLauncher : IAttackLauncher
         {
             var pukeObj = Object.Instantiate(CatProjectPrefab, position, Quaternion.identity);
             pukeObj.GetComponent<CatProjectileController>().Init(direction);
+            pukeObj.GetComponent<BaseDamageApplier>().Creator = Player;
             AudioManager.PlayProjectileAudio();
             buttonDown = true;
         }
