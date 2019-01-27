@@ -52,12 +52,13 @@ public class FlyingCritterMover : ICritterMover
 
     public GameObject GetHead()
     {
-        throw new System.NotImplementedException();
+        return null;
     }
 
     public void TakeStateFromServer(CritterStatePacket state, bool setRotation = true)
     {
-        throw new System.NotImplementedException();
+        rb.MovePosition(state.position);
+        rb.velocity = state.velocity;
     }
 
     public void UpdateImmediate(CritterInputPacket packet)

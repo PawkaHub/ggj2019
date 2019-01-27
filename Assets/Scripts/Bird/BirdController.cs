@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-
+// obsolete but keepin it around because....
 public class BirdController : MonoBehaviour
 {
     [SerializeField] readonly float MouseYawSensitivity = 1f;
