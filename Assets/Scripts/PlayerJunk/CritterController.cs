@@ -1,21 +1,33 @@
 ﻿using System;
 using UnityEngine;
 
-public class CritterController : MonoBehaviour
+public interface ICritterController
+{
+    ICritterMover Mover { get; }
+    bool IsServer { get; set; }
+    event Action<CritterStatePacket> OnCritterStatePacket;
+    event Action<CritterInputPacket> OnCritterInputPacket;
+    IInputGrabber localInputGrabber { get; set; }
+    CritterInputPacket? InputPacketOveride { get; set; }
+    void UpdateViaCritterStatePacket(CritterStatePacket critterStatePacket);
+    Transform transform { get; }
+}
+
+public class CritterController : MonoBehaviour, ICritterController
 {
     [SerializeField] CritterMoverConfig critterConfig;
-    [SerializeField] CritterAudioManager audioManager;
+    [SerializeField] protected CritterAudioManager audioManager;
 
-    public IInputGrabber localInputGrabber;
+    public IInputGrabber localInputGrabber { get; set; }
     public ICritterMover Mover { get; private set; }
 
-    public bool IsServer;
-    internal CritterInputPacket? InputPacketOveride;
+    public bool IsServer { get; set; }
+    public CritterInputPacket? InputPacketOveride { get; set; }
 
     public event Action<CritterStatePacket> OnCritterStatePacket;
     public event Action<CritterInputPacket> OnCritterInputPacket;
 
-    private void Awake()
+    protected virtual void Awake()
     {
         Cursor.lockState = CursorLockMode.Locked;
         //inputGrabber = new CritterInputGrabber(mouseSensitivity);
