@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Game;
+using System;
 using UnityEngine;
 
 [Serializable]
@@ -76,7 +77,7 @@ public class CritterMover : ICritterMover
         childCamera = critter.GetComponentInChildren<Camera>().gameObject;
         cameraBobT = 0;
         suspensionRadius = config.suspensionRadiusRatio * radius;
-        launcher = AttackLauncherFactory.Create(config.attackKind, audioManager);
+        launcher = AttackLauncherFactory.Create(config.attackKind, audioManager, critter.GetComponentInParent<Player>());
     }
 
     public void UpdateImmediate(CritterInputPacket packet)

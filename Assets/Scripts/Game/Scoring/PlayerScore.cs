@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Networking;
+using UnityEngine;
 
 namespace Game
 {
@@ -41,21 +42,33 @@ namespace Game
         private void OnDeath()
         {
             deaths++;
+            Player.NetworkPlayer.ServerConnection?.SendUpdatedScores();
         }
 
         private void OnKill()
         {
             kills++;
+            Player.NetworkPlayer.ServerConnection?.SendUpdatedScores();
         }
 
         private void OnDamageTaken(float amount)
         {
-            damageDealt -= amount; //negative, since amount is a health modification
+            damageTaken -= amount; //negative, since amount is a health modification
+            Player.NetworkPlayer.ServerConnection?.SendUpdatedScores();
         }
 
         private void OnDamageDealt(float amount)
         {
-            damageTaken -= amount; //negative, since amount is a health modification
+            damageDealt -= amount; //negative, since amount is a health modification
+            Player.NetworkPlayer.ServerConnection?.SendUpdatedScores();
+        }
+
+        public void UpdateScore(CritterScoreMessage message)
+        {
+            deaths = message.DeathCount;
+            kills = message.KillCount;
+            damageDealt = message.DamageDealt;
+            damageTaken = message.DamageTaken;
         }
     }
 }

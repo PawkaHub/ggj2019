@@ -25,7 +25,7 @@ namespace Networking
         public event Action<NetworkPlayer> OnPlayerConnect;
         public event Action<NetworkPlayer> OnPlayerDisconnect;
         public event Action OnActivePlayersUpdated;
-
+        
         public readonly string serverAddress = "localhost";
 
         public ConnectionManager(string serverAddress)
