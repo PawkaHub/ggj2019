@@ -38,6 +38,7 @@ namespace Networking
             client.RegisterHandler(GameMsgType.PlayerDisconnect, HandlePlayerDisconnect);
             client.RegisterHandler(GameMsgType.Effects, HandleEffectReceived);
             client.RegisterHandler(GameMsgType.UpdateCritterState, HandleUpdateCritterState);
+            client.RegisterHandler(GameMsgType.UpdateCritterInput, HandeUpdateCritterInput);
 
             client.Connect(serverAddress, CONNECTION_PORT);
 
@@ -53,6 +54,16 @@ namespace Networking
             {
                 Debug.Log("Client Not Connected!");
             }
+        }
+
+        private void HandeUpdateCritterInput(NetworkMessage netMsg)
+        {
+            var message = netMsg.ReadMessage<CritterInputPacketMessage>();
+            var player = activePlayers.Find(p => p.ID == message.ID);
+
+            //Debug.Log("SENDING CritterStatePacketMessage player#" + player.ID + " p" + message.critterStatePacket.position + " v" + message.critterStatePacket.velocity);
+
+            player.Player.CritterController.InputPacketOveride = message.critterInputPacket;
         }
 
         public override void SendMessage<T>(T msg)

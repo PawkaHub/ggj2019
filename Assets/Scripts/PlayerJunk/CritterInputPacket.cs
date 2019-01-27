@@ -11,4 +11,6 @@ public struct CritterInputPacket
     public bool rightward;
     public bool jump;
     public bool shoot;
+    public float MouseX;
+    public float MouseY;
 }

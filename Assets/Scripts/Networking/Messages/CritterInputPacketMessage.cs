@@ -5,6 +5,7 @@ namespace Networking
 {
     public class CritterInputPacketMessage : MessageBase
     {
+        public int ID;
         public CritterInputPacket critterInputPacket;
     }
 

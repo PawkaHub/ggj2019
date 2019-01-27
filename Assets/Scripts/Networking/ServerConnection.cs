@@ -47,6 +47,7 @@ namespace Networking
             CurrentPlayer.isServer = true;
             CurrentPlayer.ID = 0;
             CurrentPlayer.IsSelf = true;
+            CurrentPlayer.ServerConnection = this;
 
             CurrentPlayer.PostCritterStatePacket += (p) =>
             {
@@ -95,12 +96,31 @@ namespace Networking
         {
             var inputPacket = netMsg.ReadMessage<CritterInputPacketMessage>();
 
-            var player = activePlayers.Where(p => p.Connection == netMsg.conn).First();
+            var player = activePlayers.Where(p => p.ID == inputPacket.ID).First();
 
             Debug.Log("RECIV HandeUpdateCritterInput player#" + player.ID + "  " + inputPacket);
 
-
             player.Player.SetInputPacket(inputPacket.critterInputPacket);
+
+            SendUpdateCritterInput(player, inputPacket.critterInputPacket);
+        }
+
+        public void SendUpdateCritterInput(NetworkPlayer owner, CritterInputPacket critterInputPacket)
+        {
+            var message = new CritterInputPacketMessage()
+            {
+                ID = owner.ID,
+                critterInputPacket = critterInputPacket
+            };
+
+            foreach (var activePlayer in activePlayers)
+            {
+                if (activePlayer.isServer)
+                {
+                    continue;
+                }
+                activePlayer.Connection.SendUnreliable(GameMsgType.UpdateCritterInput, message);
+            }
         }
 
         private void OnClientDisconnected(NetworkConnection obj)
