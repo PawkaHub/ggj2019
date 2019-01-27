@@ -1,4 +1,5 @@
 ﻿using Game;
+using System.Collections;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,6 +12,7 @@ namespace UI
         private Image Fader;
         [SerializeField]
         private Text TitleFader;
+
         [SerializeField]
         private Text HealthText;
         [SerializeField]
@@ -57,13 +59,7 @@ namespace UI
 
                     if (!hasPlayer)
                     {
-                        var color = Fader.color;
-                        color.a = 1;
-                        Fader.color = color;
-                        color = TitleFader.color;
-                        color.a = 1;
-                        TitleFader.color = color;
-
+                        StartCoroutine(FadeInThenOut("LAZER PETZ", 0.1f, 0.005f));
                         HealthText.enabled = true;
                         HealthBar.gameObject.SetActive(true);
                         KillsText.enabled = true;
@@ -71,16 +67,52 @@ namespace UI
                     }
 
                     hasPlayer = true;
-
-                    var col = Fader.color;
-                    col.a -= 0.01f;
-                    Fader.color = col;
-                    col = TitleFader.color;
-                    col.a -= 0.01f;
-                    TitleFader.color = col;
                     return;
                 }
             }
+        }
+
+        private IEnumerator FadeInThenOut(string title, float fadeInSpeed, float fadeOutSpeed)
+        {
+            yield return FadeIn(title, fadeInSpeed);
+            yield return FadeOut(title, fadeOutSpeed);
+        }
+
+        private IEnumerator FadeIn(string title, float speed)
+        {
+            SetFaderAlpha(0);
+            yield return null;
+            while (GetFaderAlpha() < 1)
+            {
+                SetFaderAlpha(GetFaderAlpha() + speed);
+                yield return null;
+            }
+        }
+
+        private IEnumerator FadeOut(string title, float speed)
+        {
+            SetFaderAlpha(1);
+            yield return null;
+            while (GetFaderAlpha() > 0)
+            {
+                SetFaderAlpha(GetFaderAlpha() - speed);
+                yield return null;
+            }
+        }
+
+        private float GetFaderAlpha()
+        {
+            return Fader.color.a;
+        }
+
+        private void SetFaderAlpha(float alpha)
+        {
+            var color = Fader.color;
+            color.a = alpha;
+            Fader.color = color;
+            color = TitleFader.color;
+            color.a = alpha;
+            TitleFader.color = color;
         }
     }
 }
