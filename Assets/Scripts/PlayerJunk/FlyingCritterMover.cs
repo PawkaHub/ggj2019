@@ -43,7 +43,7 @@ public class FlyingCritterMover : ICritterMover
         this.critter = critter;
         this.config = config;
 
-        CurrentState = STATE.FLYING;
+        currentState = STATE.FLYING;
         Cursor.lockState = CursorLockMode.Locked;
         rb = critter.GetComponent<Rigidbody>();
         rb.useGravity = false;
@@ -69,7 +69,7 @@ public class FlyingCritterMover : ICritterMover
     public CritterStatePacket UpdateTick(CritterInputPacket packet)
     {
         UpdateState();
-        DoMove();
+        DoMove(packet);
 
         return new CritterStatePacket
         {
@@ -79,9 +79,9 @@ public class FlyingCritterMover : ICritterMover
         };
     }
 
-    void DoMove()
+    void DoMove(CritterInputPacket packet)
     {
-        var orientation = UpdateOrientation();
+        var orientation = UpdateOrientation(packet);
         rb.MoveRotation(orientation);
 
         var angleOfAttack = Mathf.Acos(Vector3.Dot(rb.velocity.normalized, critter.transform.forward.normalized)) * Mathf.Rad2Deg;
@@ -93,11 +93,11 @@ public class FlyingCritterMover : ICritterMover
         var signedAngleOfAttack = angleOfAttack;
         if (sign < 0) signedAngleOfAttack *= -1;
 
-        if (Input.GetKey(KeyCode.Space))
+        if (packet.jump)
         {
             float flapForce = Mathf.Cos(Time.time * config.FlapFrequency) * config.FlapPower;
             flapForce = Mathf.Abs(flapForce);
-            var flapThrustToLiftRatio = Input.GetKey(KeyCode.W) ? config.FlapThrustToLiftRatioPressingW : config.FlapThrustToLiftRatioPressingNotPressingW;
+            var flapThrustToLiftRatio = packet.forward ? config.FlapThrustToLiftRatioPressingW : config.FlapThrustToLiftRatioPressingNotPressingW;
             rb.AddForce(critter.transform.forward * flapForce * flapThrustToLiftRatio);
             rb.AddForce(critter.transform.up * flapForce * (1 - flapThrustToLiftRatio));
         }
@@ -120,7 +120,7 @@ public class FlyingCritterMover : ICritterMover
         }
 
         bool readyForBM = Time.time - timeOfLastBowelMovement > config.ShitsPerMinute / 60;
-        if (Input.GetKey(KeyCode.Mouse0) && readyForBM)
+        if (packet.shoot && readyForBM)
         {
             timeOfLastBowelMovement = Time.time;
             var shit = GameObject.Instantiate(Resources.Load("Prefabs/BirdShit") as GameObject);
@@ -135,56 +135,30 @@ public class FlyingCritterMover : ICritterMover
         RaycastHit hit;
         Ray downRay = new Ray(critter.transform.position, -Vector3.up);
         bool closeToSomethingToStandOn = Physics.Raycast(downRay, out hit) && hit.distance < 0.7f;
-        CurrentState = closeToSomethingToStandOn ? STATE.STANDING : STATE.FLYING;
+        currentState = closeToSomethingToStandOn ? STATE.STANDING : STATE.FLYING;
     }
 
     enum STATE { FLYING, STANDING }
 
-    STATE currentState;
-    STATE CurrentState
-    {
-        get
-        {
-            return currentState;
-        }
-        set
-        {
-            if (currentState != value)
-            {
-                currentState = value;
-
-                if (currentState == STATE.STANDING)
-                {
-                    ResetRB();
-                }
-            }
-        }
-    }
+    STATE currentState { get; set; }
 
     Rigidbody rb;
 
-    void ResetRB() // todo this maybe causing problems
+    Quaternion UpdateOrientation(CritterInputPacket packet)
     {
-        rb.angularVelocity = Vector3.zero;
-        rb.velocity = Vector3.zero;
-    }
-
-    Quaternion UpdateOrientation()
-    {
-        var mouseX = Input.GetAxis("Mouse X") * config.KeyRollSensitivity;
+        var mouseX = packet.MouseX * config.KeyRollSensitivity;
         _rollDegrees -= mouseX;
         _rollDegrees = Mathf.Clamp(_rollDegrees, -config.RollClampDegrees, config.RollClampDegrees);
 
         float yaw = 0f;
-        if (Input.GetKey(KeyCode.A)) yaw -= config.MouseYawSensitivity;
-        if (Input.GetKey(KeyCode.D)) yaw += config.MouseYawSensitivity;
+        if (packet.leftward) yaw -= config.MouseYawSensitivity;
+        if (packet.rightward) yaw += config.MouseYawSensitivity;
         _yawDegress += yaw * config.MouseYawSensitivity;
         _yawDegress += mouseX * config.RollYawTrim;
 
-        _pitchDegrees -= Input.GetAxis("Mouse Y") * config.MousePitchSensitivity;
+        _pitchDegrees -= packet.MouseY * config.MousePitchSensitivity;
         _pitchDegrees = Mathf.Clamp(_pitchDegrees, -config.PitchClampDegrees, config.PitchClampDegrees);
 
-        _rollDegrees = CurrentState == STATE.STANDING ? 0f : _rollDegrees; // todo this is dumb
         return Quaternion.Euler(_pitchDegrees, _yawDegress, _rollDegrees);
     }
 }
