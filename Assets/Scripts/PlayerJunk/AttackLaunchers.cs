@@ -32,17 +32,20 @@ public class CatProjectileLauncher : IAttackLauncher
 {
     bool buttonDown = false;
     IPlayerAudioManager AudioManager;
+    GameObject CatProjectPrefab;
+    CatProjectileController CatProjectileController;
 
     public CatProjectileLauncher(IPlayerAudioManager playerAudioManager)
     {
         AudioManager = playerAudioManager;
+        CatProjectPrefab = Resources.Load<GameObject>("Prefabs/CatProjectile");
     }
 
     public void Update(bool attackButtonPressed, Vector3 position, Vector3 direction)
     {
         if (attackButtonPressed && !buttonDown)
         {
-            var pukeObj = Object.Instantiate(Resources.Load<GameObject>("Prefabs/CatProjectile"), position, Quaternion.identity);
+            var pukeObj = Object.Instantiate(CatProjectPrefab, position, Quaternion.identity);
             pukeObj.GetComponent<CatProjectileController>().Init(direction);
             AudioManager.PlayProjectileAudio();
             buttonDown = true;
