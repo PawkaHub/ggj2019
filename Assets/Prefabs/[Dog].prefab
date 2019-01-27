@@ -783,7 +783,7 @@ Camera:
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 2327
+    m_Bits: 2839
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -866,7 +866,6 @@ MonoBehaviour:
     gravityMult: 1.5
     attackKind: 1
   audioManager: {fileID: 2336087429788693521}
-  IsServer: 0
 --- !u!54 &8736681339461605905
 Rigidbody:
   m_ObjectHideFlags: 0
