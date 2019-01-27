@@ -4,12 +4,14 @@ namespace Game
 {
     public class CritterModel : PlayerBehaviour
     {
+        public Transform Model;
+
         private ICritterController controller;
         private Quaternion rotationDifference;
 
         public void Start()
         {
-            gameObject.SetActive(!Player.NetworkPlayer.IsSelf);
+            Model.gameObject.SetActive(!Player.NetworkPlayer.IsSelf);
             controller = GetComponentInParent<ICritterController>();
 
             //rotationDifference = controller.Mover.NeckBone.transform.rotation * Quaternion.Inverse(controller.Mover.Head.transform.rotation);
