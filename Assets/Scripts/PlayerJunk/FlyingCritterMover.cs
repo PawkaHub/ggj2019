@@ -38,6 +38,7 @@ public class FlyingCritterMover : ICritterMover
     float _yawDegress;
     float _pitchDegrees;
     float _rollDegrees;
+    bool hasHadAnyInput;
 
     IPlayerAudioManager audioManager;
 
@@ -47,6 +48,7 @@ public class FlyingCritterMover : ICritterMover
         this.config = config;
         this.audioManager = audioManager;
 
+        hasHadAnyInput = false;
         currentState = STATE.FLYING;
         Cursor.lockState = CursorLockMode.Locked;
         rb = critter.GetComponent<Rigidbody>();
@@ -68,11 +70,13 @@ public class FlyingCritterMover : ICritterMover
 
     public void UpdateImmediate(CritterInputPacket packet)
     {
+        hasHadAnyInput |= packet.forward || packet.jump;
         // TODO not sure what to put in here
     }
 
     public CritterStatePacket UpdateTick(CritterInputPacket packet)
     {
+        hasHadAnyInput |= packet.forward || packet.jump;
         UpdateState();
         DoMove(packet);
         TryPoop(packet);
@@ -89,6 +93,8 @@ public class FlyingCritterMover : ICritterMover
     {
         launcher.Update(packet.shoot, critter.transform.position, -critter.transform.up);
     }
+
+    
 
     void DoMove(CritterInputPacket packet)
     {
@@ -130,7 +136,11 @@ public class FlyingCritterMover : ICritterMover
         float lift = (Mathf.Pow(locForwardVel, 2) * config.LiftMagic * signedAngleOfAttack) / 2;
         var liftVector = critter.transform.up * lift;
         rb.AddForce(liftVector);
-        rb.AddForce(Physics.gravity, ForceMode.Acceleration);
+
+        if (hasHadAnyInput)
+        {
+            rb.AddForce(Physics.gravity, ForceMode.Acceleration);
+        }
 
         // janky, no science glide bs
         var fallVelocity = rb.velocity.y;

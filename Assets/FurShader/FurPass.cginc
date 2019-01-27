@@ -42,6 +42,9 @@ v2f vert (appdata v)
 fixed4 frag (v2f i) : SV_Target
 {
     fixed4 col = tex2D(_MainTex, i.uv);
+
+    col = 0.3 + 0.7*col;
+
     fixed alpha = tex2D(_FurTex, i.uv1).r;
     col *= i.diff;
     col.a *= step(lerp(_CutOff, _CutOff + _Thickness, FUR_STEP), alpha);
