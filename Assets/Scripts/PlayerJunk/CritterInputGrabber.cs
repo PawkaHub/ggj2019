@@ -44,6 +44,9 @@ public class CritterInputGrabber : IInputGrabber
 
     public CritterInputPacket UpdateImmediate()
     {
+        float mouseX = Input.GetAxis("Mouse X");
+        float mouseY = Input.GetAxis("Mouse Y");
+
         var thisImmediateFrame = new CritterInputPacket {
             headOrientation = updateOrientation(),
             forward   = Input.GetKey(KeyCode.W),
@@ -52,6 +55,8 @@ public class CritterInputGrabber : IInputGrabber
             rightward = Input.GetKey(KeyCode.D),
             jump      = Input.GetKey(KeyCode.Space),
             shoot     = Input.GetMouseButton(0),
+            MouseX    = mouseX,
+            MouseY    = mouseY,
         };
 
         thisTickFrame.forward   = immediateInputToTick(thisTickFrame.forward,   lastTickFrame.forward,   thisImmediateFrame.forward);
@@ -61,6 +66,8 @@ public class CritterInputGrabber : IInputGrabber
         thisTickFrame.jump      = immediateInputToTick(thisTickFrame.jump,      lastTickFrame.jump,      thisImmediateFrame.jump);
         thisTickFrame.shoot     = immediateInputToTick(thisTickFrame.shoot,     lastTickFrame.shoot,     thisImmediateFrame.shoot);
         thisTickFrame.headOrientation = thisImmediateFrame.headOrientation;
+        thisTickFrame.MouseX    = mouseX;
+        thisTickFrame.MouseY    = mouseY;
 
         return thisImmediateFrame;
     }
