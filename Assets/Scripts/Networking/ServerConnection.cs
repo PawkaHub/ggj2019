@@ -140,16 +140,7 @@ namespace Networking
                     DamageTaken = score.DamageTaken,
                     DamageDealt = score.DamageDealt,
                 };
-
-                foreach (var targetPlayer in activePlayers)
-                {
-                    if (targetPlayer.isServer)
-                    {
-                        continue;
-                    }
-
-                    targetPlayer.Connection.SendUnreliable(GameMsgType.UpdateCritterScores, message);
-                }
+                SendMessageToClients(GameMsgType.UpdateCritterScores, message);
             }
         }
 
@@ -164,7 +155,7 @@ namespace Networking
 
             activePlayers.Remove(player);
 
-            MessageBase message = new PlayerDisconnectMessage()
+            var message = new PlayerDisconnectMessage()
             {
                 id = player.ID
             };
