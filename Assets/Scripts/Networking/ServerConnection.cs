@@ -75,21 +75,13 @@ namespace Networking
         }
         private void PostCritterStatePacket(CritterStatePacket p, NetworkPlayer currentPlayer)
         {
-            foreach(var player in activePlayers)
+            var message = new CritterStatePacketMessage()
             {
-                if (player.isServer)
-                {
-                    continue;
-                }
+                ID = currentPlayer.ID,
+                critterStatePacket = p
+            };
 
-                //Debug.Log("SENDING CritterStatePacketMessage player#" + currentPlayer.ID + " p" + p.position + " v" + p.velocity);
-
-                player.Connection.SendUnreliable(GameMsgType.UpdateCritterState, new CritterStatePacketMessage()
-                {
-                    ID = currentPlayer.ID,
-                    critterStatePacket = p
-                });
-            }
+            SendMessageToClients(GameMsgType.UpdateCritterState, message);
         }
 
         private void HandeUpdateCritterInput(NetworkMessage netMsg)
@@ -113,13 +105,25 @@ namespace Networking
                 critterInputPacket = critterInputPacket
             };
 
+            SendMessageToClients(GameMsgType.UpdateCritterInput, message, false);
+        }
+
+        private void SendMessageToClients(short msgType, MessageBase messageBase, bool reliable = true)
+        {
             foreach (var activePlayer in activePlayers)
             {
                 if (activePlayer.isServer)
                 {
                     continue;
                 }
-                activePlayer.Connection.SendUnreliable(GameMsgType.UpdateCritterInput, message);
+                if (reliable)
+                {
+                    activePlayer.Connection.Send(msgType, messageBase);
+                }
+                else
+                {
+                    activePlayer.Connection.SendUnreliable(msgType, messageBase);
+                }
             }
         }
 
@@ -138,14 +142,7 @@ namespace Networking
             {
                 id = player.ID
             };
-            foreach (var activePlayer in activePlayers)
-            {
-                if (activePlayer.isServer)
-                {
-                    continue;
-                }
-                activePlayer.Connection.Send(GameMsgType.PlayerDisconnect, message);
-            }
+            SendMessageToClients(GameMsgType.PlayerDisconnect, message);
 
 
             UpdateActivePlayers();
@@ -155,15 +152,7 @@ namespace Networking
         {
             var message = PlayersUpdateMessage.Create(activePlayers);
 
-            foreach (var remotePlayer in activePlayers)
-            {
-                if (remotePlayer.isServer)
-                {
-                    continue;
-                }
-
-                remotePlayer.Connection.Send(GameMsgType.UpdateActivePlayers, message);
-            }
+            SendMessageToClients(GameMsgType.UpdateActivePlayers, message);
 
             OnActivePlayersUpdated?.Invoke();
         }
@@ -211,12 +200,7 @@ namespace Networking
         public override void Update()
         {
             base.Update();
-
-            // TODO: syncing position this way is sloppy
-            //UpdateActivePlayers();
-
             networkServerSimple.Update();
-            
         }
 
         public override void SendMessage<T>(T msg)
