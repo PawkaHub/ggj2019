@@ -46,7 +46,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lineRenderer: {fileID: 1330818310327403095}
   lazer: {fileID: 1330818310542404268}
-  particles: {fileID: 3837512923713176830}
+  particles: {fileID: 3837512923713176829}
 --- !u!1 &1330818310327403089
 GameObject:
   m_ObjectHideFlags: 0
