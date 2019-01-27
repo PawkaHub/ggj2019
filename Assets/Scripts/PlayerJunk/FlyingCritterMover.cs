@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Game;
 using UnityEngine;
 
 [Serializable]
@@ -48,7 +49,7 @@ public class FlyingCritterMover : ICritterMover
         rb = critter.GetComponent<Rigidbody>();
         rb.useGravity = false;
         rb.mass = config.Mass;
-        launcher = AttackLauncherFactory.Create(config.attackKind, audioManager);
+        launcher = AttackLauncherFactory.Create(config.attackKind, audioManager, critter.GetComponentInParent<Player>());
     }
 
     public GameObject GetHead()
