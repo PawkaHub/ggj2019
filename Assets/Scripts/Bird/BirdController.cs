@@ -54,7 +54,7 @@ public class BirdController : MonoBehaviour
 
     void Awake()
     {
-        CurrentState = STATE.FLYING;
+        CurrentState = STATE.STANDING;
         Cursor.lockState = CursorLockMode.Locked;
         rb = gameObject.GetComponent<Rigidbody>();
         rb.useGravity = false;

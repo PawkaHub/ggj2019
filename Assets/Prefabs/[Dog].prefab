@@ -513,7 +513,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 12cbc614926194522b77f855be543bf5, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.3
+  m_Volume: 0.2
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -613,6 +613,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: ed944452338da427498cd9ff939c886f, type: 3}
   - {fileID: 8300000, guid: d84bc140897164b249f3cd5497c53700, type: 3}
   AudioSource: {fileID: 2786441086627054007}
+  JumpSound: {fileID: 8300000, guid: db9dba0d374024c09b414acb34d307c4, type: 3}
 --- !u!82 &2786441086627054007
 AudioSource:
   m_ObjectHideFlags: 0

@@ -70,4 +70,17 @@ public class FlyingCritterController : MonoBehaviour, ICritterController
             }
         }
     }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        var rb = gameObject.GetComponent<Rigidbody>();
+        rb.velocity = -collision.relativeVelocity;
+        Mover.Collided = true;
+        audioManager.PlayJumpSound();
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        Mover.Collided = false;
+    }
 }

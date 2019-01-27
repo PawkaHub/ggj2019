@@ -2,8 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// OBSOLETE MOTHERFUCKER
+/// </summary>
+
 [RequireComponent(typeof(AudioSource))]
-public class CatAudioManager : MonoBehaviour, IPlayerAudioManager
+public class CatAudioManager : MonoBehaviour
 {
     AudioSource AudioSource;
     [SerializeField] AudioClip[] attackClips;

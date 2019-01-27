@@ -5,6 +5,7 @@ using UnityEngine;
 public interface IPlayerAudioManager
 {
     void PlayProjectileAudio();
+    void PlayJumpSound();
 }
 
 [RequireComponent(typeof(AudioSource))]
@@ -12,6 +13,8 @@ public class CritterAudioManager : MonoBehaviour, IPlayerAudioManager
 {
     [SerializeField] AudioClip[] attackClips;
     [SerializeField] AudioSource AudioSource;
+    [SerializeField] AudioClip JumpSound;
+
 
     public void PlayProjectileAudio()
     {
@@ -24,5 +27,11 @@ public class CritterAudioManager : MonoBehaviour, IPlayerAudioManager
     void Start()
     {
         AudioSource.clip = attackClips[0];
+    }
+
+    public void PlayJumpSound()
+    {
+        this.AudioSource.clip = JumpSound;
+        AudioSource.Play();
     }
 }
