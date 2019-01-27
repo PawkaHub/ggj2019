@@ -3,6 +3,7 @@ using System.Collections;
 using System;
 using System.Collections.Generic;
 using Networking;
+using System.Linq;
 
 namespace Game
 {
@@ -29,8 +30,7 @@ namespace Game
         public bool Initialized { get; private set; }
         public event EventHandler OnInitialized;
         
-		private Player[] players;
-        public IEnumerable<Player> Players { get { return players; } }
+        public IEnumerable<Player> Players { get { return ConnectionManager.ActivePlayers.Select(p=>p.Player); } }
 
         [SerializeField]
         private Player PlayerPrefab;
@@ -59,12 +59,9 @@ namespace Game
             connectionManager.OnPlayerDisconnect += OnPlayerDisconnect;
 
             yield return connectionManager.Initialize();
-
-            InitializeGame();
-
+            
             Initialized = true;
             OnInitialized?.Invoke(this, EventArgs.Empty);
-
         }
 
         private void OnPlayerDisconnect(Networking.NetworkPlayer player)
@@ -86,8 +83,6 @@ namespace Game
             //go.name = "Player_" + player.Name;
 
             Player player = CreatePlayerObject(netPlayer);
-
-            
 
             NetworkToGameMap.Add(netPlayer, player);
 
@@ -131,24 +126,14 @@ namespace Game
                 connectionManager.
             }
         }*/
-
-        private void InitializeGame()
-        {
-            FindPlayers();
-        }
-
-        private void FindPlayers()
-        {
-            players = FindObjectsOfType<Player>();
-        }
-
+        
         public Player GetPlayer(int id)
         {
-            foreach(Player p in players)
+            foreach(var p in ConnectionManager.ActivePlayers)
             {
-                if(p.NetworkPlayer.ID == id)
+                if(p.ID == id)
                 {
-                    return p;
+                    return p.Player;
                 }
             }
             return null;
