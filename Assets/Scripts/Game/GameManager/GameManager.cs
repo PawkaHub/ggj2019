@@ -36,7 +36,7 @@ namespace Game
         private Player PlayerPrefab;
 
         public ConnectionManager ConnectionManager;
-        private GameSpawner spawner;
+        public GameSpawner Spawner;
 
         [SerializeField] float mouseSensitivity = 4f;
         public CritterInputGrabber LocalInputGrabber;
@@ -52,7 +52,7 @@ namespace Game
         private IEnumerator InitializeAsync(ConnectionManager connectionManager)
         {
             this.ConnectionManager = connectionManager ?? throw new ArgumentNullException(nameof(connectionManager));
-            spawner = new GameSpawner(this);
+            Spawner = new GameSpawner(this);
 
             connectionManager.OnPlayerConnect += OnPlayerConnect;
             connectionManager.OnActivePlayersUpdated += OnActivePlayersUpdated;
@@ -95,7 +95,7 @@ namespace Game
 
             player.Initialize(netPlayer, LocalInputGrabber, ConnectionManager.connectionMode == ConnectionMode.SERVER);
 
-            spawner.Spawn(player);
+            Spawner.Spawn(player);
 
             return player;
         }

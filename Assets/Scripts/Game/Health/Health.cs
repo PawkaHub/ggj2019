@@ -53,5 +53,11 @@ namespace Game
             OnModified?.Invoke(this, new HealthEventArgs(new Damager(Player), causer, amount));
             return args;
         }
+
+        public void Revive()
+        {
+            Current = Default;
+            IsDead = false;
+        }
     }
 }

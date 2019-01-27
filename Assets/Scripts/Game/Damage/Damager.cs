@@ -5,7 +5,7 @@ namespace Game
     public class Damager
     {
         public GameObject GameObject { get; private set; }
-        private Player player;
+        public Player Player;
 
         public Damager(GameObject gameObject)
         {
@@ -14,12 +14,12 @@ namespace Game
 
         public Damager(Player player) : this(player.gameObject)
         {
-            this.player = player;
+            this.Player = player;
         }
 
         public string GetName()
         {
-            if (player != null) return player.NetworkPlayer.Name;
+            if (Player != null) return Player.NetworkPlayer.Name;
 
             return GameObject.name;
         }

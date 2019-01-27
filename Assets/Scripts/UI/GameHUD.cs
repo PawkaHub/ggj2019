@@ -1,4 +1,5 @@
 ﻿using Game;
+using Networking;
 using System;
 using System.Collections;
 using System.Linq;
@@ -30,12 +31,54 @@ namespace UI
         {
             gameManager = FindObjectOfType<GameManager>();
             FindObjectOfType<GameOutcomeManager>().OnGameEnded += OnGameOver;
+            gameManager.OnInitialized += OnInit;
 
-            SetFaderAlpha(0);
+            SetFaderAlpha(0, "");
             HealthText.enabled = false;
             HealthBar.gameObject.SetActive(false);
             KillsText.enabled = false;
             DeathsText.enabled = false;
+        }
+
+        private void OnInit(object sender, EventArgs e)
+        {
+            var self = gameManager.Players.FirstOrDefault(p => p.NetworkPlayer.IsSelf);
+            if (self != null)
+            {
+                InitSelf(self);
+                return;
+            }
+
+            gameManager.ConnectionManager.OnPlayerConnect += OnConnect;
+        }
+
+        private void OnConnect(Networking.NetworkPlayer obj)
+        {
+            if (!obj.IsSelf)
+                return;
+
+            InitSelf(obj.Player);
+        }
+
+        private void InitSelf(Player self)
+        {
+            self.Health.OnDeath += OnDeath;
+        }
+
+        private static readonly string[] DEATH_QUIPS = new string[]
+        {
+            "RIP",
+            "YOU WILL BE REMEMBERED",
+            "YOU WERE LOVED",
+        };
+
+        private void OnDeath(object sender, HealthEventArgs e)
+        {
+            StartCoroutine(FadeInThenOut(DEATH_QUIPS[UnityEngine.Random.Range(0, DEATH_QUIPS.Length)], 0.1f, 0.005f));
+
+            // this is a dumb spot for this but I dont care
+            gameManager.Spawner.ReSpawn(e.Causee.Player);
+            e.Causee.Player.Health.Revive();
         }
 
         private void OnGameOver(object sender, GameOutcomeEventArgs e)
@@ -89,22 +132,22 @@ namespace UI
 
         private IEnumerator FadeIn(string title, float speed)
         {
-            SetFaderAlpha(0);
+            SetFaderAlpha(0, title);
             yield return null;
             while (GetFaderAlpha() < 1)
             {
-                SetFaderAlpha(GetFaderAlpha() + speed);
+                SetFaderAlpha(GetFaderAlpha() + speed, title);
                 yield return null;
             }
         }
 
         private IEnumerator FadeOut(string title, float speed)
         {
-            SetFaderAlpha(1);
+            SetFaderAlpha(1, title);
             yield return null;
             while (GetFaderAlpha() > 0)
             {
-                SetFaderAlpha(GetFaderAlpha() - speed);
+                SetFaderAlpha(GetFaderAlpha() - speed, title);
                 yield return null;
             }
         }
@@ -114,7 +157,7 @@ namespace UI
             return Fader.color.a;
         }
 
-        private void SetFaderAlpha(float alpha)
+        private void SetFaderAlpha(float alpha, string text)
         {
             var color = Fader.color;
             color.a = alpha;
@@ -122,6 +165,7 @@ namespace UI
             color = TitleFader.color;
             color.a = alpha;
             TitleFader.color = color;
+            TitleFader.text = text;
         }
     }
 }
