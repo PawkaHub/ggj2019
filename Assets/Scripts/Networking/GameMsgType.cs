@@ -9,6 +9,7 @@ namespace Networking
         public const short Effects = MsgType.Highest + 3;
         public const short UpdateCritterState = MsgType.Highest + 4;
         public const short UpdateCritterInput = MsgType.Highest + 5;
+        public const short UpdateCritterScores = MsgType.Highest + 6;
     }
 
 }
