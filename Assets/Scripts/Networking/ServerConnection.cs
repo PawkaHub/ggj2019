@@ -108,21 +108,21 @@ namespace Networking
             SendMessageToClients(GameMsgType.UpdateCritterInput, message, false);
         }
 
-        private void SendMessageToClients(short msgType, MessageBase messageBase, bool reliable = true)
+        private void SendMessageToClients(short msgType, MessageBase message, bool reliable = true)
         {
-            foreach (var activePlayer in activePlayers)
+            foreach (var targetPlayer in activePlayers)
             {
-                if (activePlayer.isServer)
+                if (targetPlayer.isServer)
                 {
                     continue;
                 }
                 if (reliable)
                 {
-                    activePlayer.Connection.Send(msgType, messageBase);
+                    targetPlayer.Connection.Send(msgType, message);
                 }
                 else
                 {
-                    activePlayer.Connection.SendUnreliable(msgType, messageBase);
+                    targetPlayer.Connection.SendUnreliable(msgType, message);
                 }
             }
         }

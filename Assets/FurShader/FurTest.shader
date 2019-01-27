@@ -18,7 +18,8 @@ Shader "Unlit/FurTest"
 
         inline fixed4 LambertDiffuse(float3 worldNormal)
         {
-            float3 lightDir = normalize(_WorldSpaceLightPos0.xyz);
+            float3 lightDir = normalize(float3(-2.937356, 15.16797, 2.058736));
+         //   float3 lightDir = normalize(_WorldSpaceLightPos0.xyz);
             float NdotL = max(0, dot(worldNormal, lightDir));
             return NdotL * _Diffuse;
         }

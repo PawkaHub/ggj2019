@@ -1,4 +1,8 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Linq;
+using Networking;
+using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class GameCanvasController : MonoBehaviour
@@ -19,9 +23,9 @@ public class GameCanvasController : MonoBehaviour
         disconnectPrompt.text = "Press \"Ctrl+ Q\" to Disconnect";
     }
 
-    public void Initialize(string ipAddress, Camera tvCamera, Camera uiCamera, Camera gameCamera, TVCanvasController tvCanvas)
+    public void Initialize(Camera tvCamera, Camera uiCamera, Camera gameCamera, TVCanvasController tvCanvas)
     {
-        this.ipAddress.text = ipAddress;
+        this.ipAddress.enabled = false;
         this.tvCamera = tvCamera;
         this.uiCamera = uiCamera;
         this.gameCamera = gameCamera;
@@ -50,5 +54,20 @@ public class GameCanvasController : MonoBehaviour
     {
         tvCamera.gameObject.SetActive(false);
         this.gameObject.SetActive(false);
+    }
+
+    internal void UpdateConnectionInfo(ConnectionManager connectionManager)
+    {
+        ipAddress.enabled = true;
+        if (connectionManager.connectionMode == ConnectionMode.SERVER)
+        {
+            string hostName = System.Net.Dns.GetHostName();
+            string localIP = System.Net.Dns.GetHostEntry(hostName).AddressList.First(a => a.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).ToString();
+            ipAddress.text = localIP;
+        }
+        else
+        {
+            ipAddress.text = "Connected";
+        }
     }
 }
